@@ -1,0 +1,314 @@
+{
+  "id": "sri-lanka-surf-2026",
+  "name": "Sri Lanka: Surf & Slow",
+  "vision": "Learn level 2 surfing, free roam on a scooty, surfskate in a local park, chill by the beach and read, explore cafes and local food. Basically an adventurous holiday with chill slow life.",
+  "startDate": "2026-05-10",
+  "endDate": "2026-05-19",
+  "currency": "INR",
+  "accentColor": "#E8583A",
+  "heroImage": "https://images.unsplash.com/photo-1586500036706-41963de24d8b?auto=format&fit=crop&w=2000&q=80",
+  "mapCenter": [80.45, 5.97],
+  "mapZoom": 9,
+  "info": {
+    "visa": {
+      "title": "Visa",
+      "notes": "Sri Lanka ETA. Apply online at eta.gov.lk 2-3 weeks before travel. 30 day double-entry tourist visa. Takes 48-72 hrs to process.",
+      "cost": 4200
+    },
+    "esim": {
+      "title": "E-SIM",
+      "notes": "Airalo 'Lion' plan — 10GB / 30 days. Activate after landing. Dialog is the physical fallback at CMB arrivals (Rs 1500 ≈ ₹420 for 20GB tourist SIM).",
+      "cost": 1800
+    },
+    "network": {
+      "title": "Mobile Network",
+      "notes": "Dialog > Mobitel in the south coast. 4G reliable across Ahangama / Weligama / Hiriketiya. Patchy inland near Ella.",
+      "cost": 0
+    },
+    "exchange": {
+      "title": "Exchange Rate",
+      "notes": "1 INR ≈ 3.55 LKR (May 2026). Withdraw from Commercial Bank ATMs (lowest fees). Carry 8-10k LKR cash for small spots.",
+      "cost": 0
+    }
+  },
+  "flights": [
+    {
+      "from": "BLR",
+      "to": "CMB",
+      "date": "2026-05-10",
+      "time": "06:30",
+      "airline": "IndiGo 6E 1223",
+      "cost": 18500,
+      "notes": "Arrives CMB 08:20 local"
+    },
+    {
+      "from": "CMB",
+      "to": "BLR",
+      "date": "2026-05-19",
+      "time": "21:15",
+      "airline": "SriLankan UL 173",
+      "cost": 21000,
+      "notes": "Arrives BLR 22:40. Leave Ahangama by 2pm latest."
+    }
+  ],
+  "places": [
+    {
+      "id": "cmb-airport",
+      "name": "Bandaranaike International Airport (CMB)",
+      "category": "transport",
+      "coords": [79.8841, 7.1808],
+      "image": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Pick up e-SIM activation, withdraw LKR cash, grab kottu for breakfast.",
+      "priceINR": 0,
+      "contact": ""
+    },
+    {
+      "id": "colombo-fort",
+      "name": "Colombo Fort Railway",
+      "category": "transport",
+      "coords": [79.8500, 6.9335],
+      "image": "https://images.unsplash.com/photo-1580432816193-dd77de08a962?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Take the Ruhunu Kumari express to Weligama (~3h 20m). Book 2nd class reserved, window seat on the ocean side.",
+      "priceINR": 900,
+      "priceUnit": "one-way",
+      "travelMode": "train",
+      "contact": "Sri Lanka Railways reservation +94 11 2432908"
+    },
+    {
+      "id": "hangtime-hostel",
+      "name": "Hangtime Hostel",
+      "category": "stay",
+      "coords": [80.4293, 5.9734],
+      "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Weligama beachfront. Social surf hostel, mixed dorm + private rooms. Breakfast included. Walk to surf spots.",
+      "priceINR": 2100,
+      "priceUnit": "per night",
+      "contact": "+94 77 123 4567"
+    },
+    {
+      "id": "lapoint-surf",
+      "name": "Lapoint Surf Camp",
+      "category": "special",
+      "coords": [80.3622, 5.9739],
+      "image": "https://images.unsplash.com/photo-1530870110042-98b2cb110834?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Level 2 group lessons (max 4:1). Weligama Bay = mellow, long rides, perfect for pop-up refinement.",
+      "priceINR": 3500,
+      "priceUnit": "per session",
+      "contact": "info@lapoint.com"
+    },
+    {
+      "id": "verse-collective",
+      "name": "Verse Collective",
+      "category": "cafe",
+      "coords": [80.3632, 5.9729],
+      "image": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Ahangama creative hub — cafe + surf shop + gallery. Matcha + banana bread. Open 7am.",
+      "priceINR": 800,
+      "contact": ""
+    },
+    {
+      "id": "cinnamon-ginger",
+      "name": "Cinnamon & Ginger",
+      "category": "restaurant",
+      "coords": [80.3659, 5.9721],
+      "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Slow-cooked Sri Lankan rice & curry. Order the jackfruit curry + pol sambol + dhal. Dinner only.",
+      "priceINR": 1200,
+      "contact": ""
+    },
+    {
+      "id": "southern-scooter",
+      "name": "Southern Scooter Rentals",
+      "category": "rental",
+      "coords": [80.4280, 5.9741],
+      "image": "https://images.unsplash.com/photo-1568708400143-6eed41b1ac3e?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Honda Dio 110cc, unlimited km, helmet + rain cover included. Needs IDP. Fuel is LKR 370/litre.",
+      "priceINR": 850,
+      "priceUnit": "per day",
+      "contact": "+94 76 345 6789"
+    },
+    {
+      "id": "dots-bay-surfskate",
+      "name": "Dots Bay House Surfskate",
+      "category": "special",
+      "coords": [80.5900, 5.9520],
+      "image": "https://images.unsplash.com/photo-1564982752979-3f7bc974d29a?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Surfskate bowl by the beach. YOW + Smoothstar rentals. Afternoons are quieter.",
+      "priceINR": 1200,
+      "priceUnit": "per session",
+      "contact": ""
+    },
+    {
+      "id": "hiriketiya-beach",
+      "name": "Hiriketiya Beach",
+      "category": "chill",
+      "coords": [80.6975, 5.9639],
+      "image": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Horseshoe bay. Calm left side for reading, peeling right break for surf. Sunset is unreal.",
+      "priceINR": 0,
+      "contact": ""
+    },
+    {
+      "id": "kingfisher-hiri",
+      "name": "Kingfisher, Hiriketiya",
+      "category": "restaurant",
+      "coords": [80.6979, 5.9645],
+      "image": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Beachfront. Catch of the day + cold Lion beer. Arrive by 6pm for sunset table.",
+      "priceINR": 1800,
+      "contact": ""
+    },
+    {
+      "id": "smoke-bitters",
+      "name": "Smoke & Bitters",
+      "category": "special",
+      "coords": [80.6985, 5.9650],
+      "image": "https://images.unsplash.com/photo-1470337458703-46ad1756a187?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Asia's 50 Best list. Foraged cocktails in the jungle. One splurge night. Book ahead.",
+      "priceINR": 2500,
+      "contact": ""
+    },
+    {
+      "id": "mirissa-beach",
+      "name": "Mirissa Beach",
+      "category": "chill",
+      "coords": [80.4590, 5.9483],
+      "image": "https://images.unsplash.com/photo-1566306254764-24823ad06bef?auto=format&fit=crop&w=1200&q=80",
+      "notes": "Coconut tree hill at dawn (skip the 5pm crowd). Parrot Rock at low tide.",
+      "priceINR": 0,
+      "contact": ""
+    }
+  ],
+  "days": [
+    {
+      "day": 1,
+      "date": "2026-05-10",
+      "title": "Landing into slow",
+      "stops": [
+        { "placeId": "cmb-airport", "time": "morning", "experience": "Land, e-SIM, LKR cash, kottu breakfast", "visionTags": [] },
+        { "placeId": "colombo-fort", "time": "morning", "experience": "Express train south, ocean-side window seat, book open", "visionTags": ["slow", "chill"] },
+        { "placeId": "hangtime-hostel", "time": "afternoon", "experience": "Check in, nap, walk to the beach. No plans.", "visionTags": ["chill"] },
+        { "placeId": "cinnamon-ginger", "time": "evening", "experience": "First rice & curry. Pace it slow.", "visionTags": ["food"] }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "2026-05-11",
+      "title": "First waves",
+      "stops": [
+        { "placeId": "lapoint-surf", "time": "morning", "experience": "First L2 session — unbroken waves, pop-up refinement", "visionTags": ["surf"] },
+        { "placeId": "verse-collective", "time": "morning", "experience": "Post-surf matcha + banana bread, write in the journal", "visionTags": ["cafe", "chill"] },
+        { "placeId": "hangtime-hostel", "time": "afternoon", "experience": "Deck. Book. Nothing.", "visionTags": ["chill", "slow"] },
+        { "placeId": "southern-scooter", "time": "evening", "experience": "Pick up the scooty. Freedom unlocked.", "visionTags": ["adventure"] }
+      ]
+    },
+    {
+      "day": 3,
+      "date": "2026-05-12",
+      "title": "Scooty day one",
+      "stops": [
+        { "placeId": "lapoint-surf", "time": "morning", "experience": "Dawn patrol, second L2 session", "visionTags": ["surf"] },
+        { "placeId": "verse-collective", "time": "morning", "experience": "Coffee + cinnamon roll, people-watch", "visionTags": ["cafe"] },
+        { "placeId": "mirissa-beach", "time": "afternoon", "experience": "Ride out on the scooty. Coconut Hill at golden hour.", "visionTags": ["adventure", "slow"] },
+        { "placeId": "kingfisher-hiri", "time": "evening", "experience": "Catch of the day, cold Lion", "visionTags": ["food"] }
+      ]
+    },
+    {
+      "day": 4,
+      "date": "2026-05-13",
+      "title": "Surfskate",
+      "stops": [
+        { "placeId": "verse-collective", "time": "morning", "experience": "Slow breakfast, long read", "visionTags": ["cafe", "slow"] },
+        { "placeId": "dots-bay-surfskate", "time": "afternoon", "experience": "First surfskate session. Carve. Fall. Carve better.", "visionTags": ["skate", "adventure"] },
+        { "placeId": "hiriketiya-beach", "time": "afternoon", "experience": "Cold shower swim + book on the left side", "visionTags": ["chill"] },
+        { "placeId": "smoke-bitters", "time": "evening", "experience": "Splurge night. Foraged cocktails. Stay late.", "visionTags": ["food"] }
+      ]
+    },
+    {
+      "day": 5,
+      "date": "2026-05-14",
+      "title": "Full chill",
+      "stops": [
+        { "placeId": "hangtime-hostel", "time": "morning", "experience": "Sleep in, no alarm", "visionTags": ["slow"] },
+        { "placeId": "hiriketiya-beach", "time": "afternoon", "experience": "All-afternoon beach. Book. Swim. Repeat.", "visionTags": ["chill", "slow"] },
+        { "placeId": "kingfisher-hiri", "time": "evening", "experience": "Sunset dinner", "visionTags": ["food"] }
+      ]
+    },
+    {
+      "day": 6,
+      "date": "2026-05-15",
+      "title": "Back to the board",
+      "stops": [
+        { "placeId": "lapoint-surf", "time": "morning", "experience": "Third surf session — try catching unbroken waves solo", "visionTags": ["surf"] },
+        { "placeId": "verse-collective", "time": "morning", "experience": "Debrief over coffee", "visionTags": ["cafe"] },
+        { "placeId": "dots-bay-surfskate", "time": "afternoon", "experience": "Second skate session — try the bowl", "visionTags": ["skate"] },
+        { "placeId": "cinnamon-ginger", "time": "evening", "experience": "Quiet dinner, early night", "visionTags": ["food"] }
+      ]
+    },
+    {
+      "day": 7,
+      "date": "2026-05-16",
+      "title": "Cafes + south loop",
+      "stops": [
+        { "placeId": "verse-collective", "time": "morning", "experience": "Long breakfast, journal", "visionTags": ["cafe", "slow"] },
+        { "placeId": "mirissa-beach", "time": "afternoon", "experience": "Scooty loop. Parrot Rock at low tide.", "visionTags": ["adventure"] },
+        { "placeId": "hiriketiya-beach", "time": "evening", "experience": "Sunset, no phone", "visionTags": ["chill"] }
+      ]
+    },
+    {
+      "day": 8,
+      "date": "2026-05-17",
+      "title": "Final surf",
+      "stops": [
+        { "placeId": "lapoint-surf", "time": "morning", "experience": "Last lesson. Cert photo. Cry a little.", "visionTags": ["surf"] },
+        { "placeId": "verse-collective", "time": "afternoon", "experience": "Sourdough sandwich, long afternoon", "visionTags": ["cafe", "slow"] },
+        { "placeId": "hiriketiya-beach", "time": "evening", "experience": "Last sunset here", "visionTags": ["chill"] }
+      ]
+    },
+    {
+      "day": 9,
+      "date": "2026-05-18",
+      "title": "Souvenir day",
+      "stops": [
+        { "placeId": "hangtime-hostel", "time": "morning", "experience": "Pack slowly. Return scooty in the afternoon.", "visionTags": [] },
+        { "placeId": "verse-collective", "time": "afternoon", "experience": "Buy the postcards + ceramic thing you have been eyeing", "visionTags": ["cafe"] },
+        { "placeId": "kingfisher-hiri", "time": "evening", "experience": "Last dinner. Ocean-side.", "visionTags": ["food"] }
+      ]
+    },
+    {
+      "day": 10,
+      "date": "2026-05-19",
+      "title": "Slow goodbye",
+      "stops": [
+        { "placeId": "hangtime-hostel", "time": "morning", "experience": "Final morning swim + checkout", "visionTags": ["chill"] },
+        { "placeId": "colombo-fort", "time": "afternoon", "experience": "Train back, window seat", "visionTags": ["slow"] },
+        { "placeId": "cmb-airport", "time": "evening", "experience": "Flight home. Already planning the next one.", "visionTags": [] }
+      ]
+    }
+  ],
+  "packing": [
+    { "id": "p1", "text": "Boardshorts × 3", "checked": false },
+    { "id": "p2", "text": "Rashguard (UV 50+)", "checked": false },
+    { "id": "p3", "text": "Reef-safe sunscreen", "checked": false },
+    { "id": "p4", "text": "Flip flops + one closed pair", "checked": false },
+    { "id": "p5", "text": "Light cottons only (humid)", "checked": false },
+    { "id": "p6", "text": "Kindle + 2 paperbacks", "checked": false },
+    { "id": "p7", "text": "Dry bag (10L)", "checked": false },
+    { "id": "p8", "text": "Reusable water bottle", "checked": false },
+    { "id": "p9", "text": "Mosquito repellent (DEET)", "checked": false },
+    { "id": "p10", "text": "First aid kit + Dioralyte", "checked": false },
+    { "id": "p11", "text": "GoPro + spare batteries", "checked": false },
+    { "id": "p12", "text": "Universal adapter (Type G)", "checked": false }
+  ],
+  "checklist": [
+    { "id": "c1", "text": "Apply for Sri Lanka ETA (eta.gov.lk)", "checked": false },
+    { "id": "c2", "text": "Get IDP for scooty rental", "checked": false },
+    { "id": "c3", "text": "Book CMB → BLR return flight", "checked": false },
+    { "id": "c4", "text": "Confirm Lapoint L2 package", "checked": false },
+    { "id": "c5", "text": "Buy Airalo e-SIM (2 days before)", "checked": false },
+    { "id": "c6", "text": "Download offline Google Maps for south coast", "checked": false },
+    { "id": "c7", "text": "Notify bank of travel", "checked": false },
+    { "id": "c8", "text": "Travel insurance (with surf coverage!)", "checked": false },
+    { "id": "c9", "text": "Book Smoke & Bitters (1 week ahead)", "checked": false }
+  ]
+}

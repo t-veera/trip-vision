@@ -1,0 +1,204 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #e8583a;
+  --accent-soft: rgba(232, 88, 58, 0.12);
+  --grain:
+    radial-gradient(
+      circle at 1px 1px,
+      rgba(244, 239, 230, 0.035) 1px,
+      transparent 0
+    );
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  font-feature-settings: 'ss01', 'ss02', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-color: #0e0b08;
+  background-image: var(--grain);
+  background-size: 3px 3px;
+  color: #f4efe6;
+}
+
+/* Typography helpers */
+.font-display {
+  font-family: 'Fraunces', Georgia, serif;
+  font-variation-settings: 'opsz' 144, 'SOFT' 30, 'WONK' 0;
+}
+.display-tight {
+  letter-spacing: -0.04em;
+  line-height: 0.92;
+}
+.mono-num {
+  font-family: 'Geist Mono', ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'ss01';
+}
+
+/* Section dividers — hairline with a tick */
+.rule {
+  position: relative;
+  height: 1px;
+  background: linear-gradient(
+    to right,
+    transparent,
+    rgba(244, 239, 230, 0.15),
+    transparent
+  );
+}
+.rule::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: -3px;
+  width: 7px;
+  height: 7px;
+  transform: translateX(-50%) rotate(45deg);
+  background: rgba(244, 239, 230, 0.3);
+}
+
+/* Reusable containers */
+.editorial-kicker {
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.soft-panel {
+  background: rgba(244, 239, 230, 0.02);
+  border: 1px solid rgba(244, 239, 230, 0.08);
+  border-radius: 6px;
+}
+.soft-panel-alt {
+  background: rgba(244, 239, 230, 0.035);
+  border: 1px solid rgba(244, 239, 230, 0.1);
+  border-radius: 6px;
+}
+
+/* Buttons */
+.btn-pill {
+  @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs tracking-wide;
+  background: rgba(244, 239, 230, 0.06);
+  border: 1px solid rgba(244, 239, 230, 0.1);
+  color: #f4efe6;
+  transition: all 180ms ease;
+}
+.btn-pill:hover {
+  background: rgba(244, 239, 230, 0.1);
+  border-color: rgba(244, 239, 230, 0.18);
+}
+.btn-accent {
+  @apply inline-flex items-center gap-2 rounded-full px-4 py-2 text-xs font-medium tracking-wide;
+  background: var(--accent);
+  color: #0e0b08;
+  transition: all 180ms ease;
+}
+.btn-accent:hover {
+  filter: brightness(1.08);
+}
+
+/* Category color tokens */
+.cat-stay { --cat: #E8C547; }
+.cat-cafe { --cat: #F2A65A; }
+.cat-restaurant { --cat: #D46A52; }
+.cat-chill { --cat: #8FB9A8; }
+.cat-special { --cat: #C084FC; }
+.cat-rental { --cat: #7DD3FC; }
+.cat-transport { --cat: #E4E1D9; }
+
+/* Mapbox overrides — make it feel editorial */
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl-attrib {
+  opacity: 0.35;
+}
+.mapboxgl-ctrl-attrib a {
+  color: #b8afa1 !important;
+}
+
+/* Numbered pin */
+.pin {
+  position: relative;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--cat, var(--accent));
+  color: #0e0b08;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Geist Mono', monospace;
+  font-weight: 600;
+  font-size: 12px;
+  border: 2px solid #0e0b08;
+  box-shadow:
+    0 0 0 1px rgba(244, 239, 230, 0.25),
+    0 6px 16px -6px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.pin:hover {
+  transform: scale(1.15);
+  box-shadow:
+    0 0 0 2px rgba(244, 239, 230, 0.45),
+    0 10px 24px -6px rgba(0, 0, 0, 0.7);
+}
+.pin.is-active {
+  transform: scale(1.25);
+  box-shadow:
+    0 0 0 3px var(--accent),
+    0 12px 28px -6px rgba(0, 0, 0, 0.8);
+}
+.pin-ghost {
+  background: rgba(244, 239, 230, 0.15);
+  color: #f4efe6;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(244, 239, 230, 0.1);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(244, 239, 230, 0.2);
+}
+
+/* Input reset for inline editing */
+.inline-input {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font: inherit;
+  outline: none;
+  width: 100%;
+  padding: 2px 4px;
+  border-radius: 3px;
+  transition: background 150ms;
+}
+.inline-input:focus,
+.inline-input:hover {
+  background: rgba(244, 239, 230, 0.05);
+}
+.inline-input::placeholder {
+  color: rgba(244, 239, 230, 0.25);
+}
+
+/* Route line styles (managed via Mapbox) are configured in MapCanvas */
