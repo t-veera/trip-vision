@@ -12,28 +12,30 @@ permissions:
 
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
+
       - name: Install
         run: npm ci
+
       - name: Build
         env:
-          # IMPORTANT: set VITE_BASE to /<your-repo-name>/ if deploying to
-          # a project page (e.g. https://user.github.io/trip-vision/).
-          # For a user/org page (user.github.io), leave as "/".
-          VITE_BASE: /trip-vision/
-          VITE_MAPBOX_TOKEN: ${{ secrets.VITE_MAPBOX_TOKEN }}
+          VITE_BASE: /${{ github.event.repository.name }}/
         run: npm run build
-      - uses: actions/upload-pages-artifact@v3
+
+      - name: Upload
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
@@ -44,5 +46,6 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - id: deployment
+      - name: Deploy
+        id: deployment
         uses: actions/deploy-pages@v4

@@ -1,20 +1,48 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import mapboxgl from 'mapbox-gl'
+import maplibregl from 'maplibre-gl'
 import {
-  MAPBOX_TOKEN,
   CATEGORY_MAP,
   getRoute,
-  formatDistance,
-  formatDuration,
 } from '../lib'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // MapCanvas
 //
-// Renders the Mapbox map, places numbered pins for the active day's stops,
-// draws route lines between them, and animates through the day on play.
-// Hovering a pin triggers onHoverPlace(place, stop). Clicking sets active.
+// MapLibre GL + Carto dark raster tiles. No auth, no token, no CC.
+// Renders the active day's stops as numbered pins, draws routed lines between
+// them via OSRM. "Play" mode flies through stops cinematically.
 // ─────────────────────────────────────────────────────────────────────────────
+
+// Custom map style — uses Carto's Voyager basemap (light, subtle, free, no auth).
+const MAP_STYLE = {
+  version: 8,
+  sources: {
+    'carto-voyager': {
+      type: 'raster',
+      tiles: [
+        'https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://b.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://c.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+        'https://d.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}@2x.png',
+      ],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> · © <a href="https://carto.com/attributions">Carto</a>',
+    },
+  },
+  layers: [
+    {
+      id: 'background',
+      type: 'background',
+      paint: { 'background-color': '#F4EFE6' },
+    },
+    {
+      id: 'carto-voyager-layer',
+      type: 'raster',
+      source: 'carto-voyager',
+    },
+  ],
+}
 
 export default function MapCanvas({
   trip,
@@ -41,40 +69,35 @@ export default function MapCanvas({
   // ─── Init map ─────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return
-    if (!MAPBOX_TOKEN) return
 
-    mapboxgl.accessToken = MAPBOX_TOKEN
-
-    const map = new mapboxgl.Map({
+    const map = new maplibregl.Map({
       container: containerRef.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
+      style: MAP_STYLE,
       center: trip.mapCenter || [78.9, 20.5],
       zoom: trip.mapZoom || 9,
-      pitch: 30,
-      bearing: -8,
+      pitch: 0, // raster tiles look weird pitched
+      bearing: 0,
       attributionControl: false,
     })
 
-    map.addControl(new mapboxgl.AttributionControl({ compact: true }), 'bottom-right')
-    map.addControl(new mapboxgl.NavigationControl({ showCompass: false }), 'top-right')
+    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right')
+    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right')
 
     map.on('load', () => {
-      // Add route source/layer
       map.addSource('day-route', {
         type: 'geojson',
         data: { type: 'FeatureCollection', features: [] },
       })
 
-      // Soft halo line
       map.addLayer({
         id: 'day-route-halo',
         type: 'line',
         source: 'day-route',
         paint: {
           'line-color': trip.accentColor || '#E8583A',
-          'line-width': 8,
-          'line-opacity': 0.15,
-          'line-blur': 3,
+          'line-width': 10,
+          'line-opacity': 0.18,
+          'line-blur': 4,
         },
         layout: { 'line-cap': 'round', 'line-join': 'round' },
       })
@@ -85,7 +108,7 @@ export default function MapCanvas({
         source: 'day-route',
         paint: {
           'line-color': trip.accentColor || '#E8583A',
-          'line-width': 2.5,
+          'line-width': 3,
           'line-dasharray': [
             'match',
             ['get', 'mode'],
@@ -100,7 +123,6 @@ export default function MapCanvas({
       setMapReady(true)
     })
 
-    // Editor: click to add place
     map.on('click', (e) => {
       if (editorModeRef.current) {
         onMapClickRef.current?.([e.lngLat.lng, e.lngLat.lat])
@@ -114,7 +136,6 @@ export default function MapCanvas({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Keep editor refs fresh without re-init
   const editorModeRef = useRef(editorMode)
   const onMapClickRef = useRef(onMapClick)
   useEffect(() => {
@@ -125,7 +146,7 @@ export default function MapCanvas({
     }
   }, [editorMode, onMapClick])
 
-  // ─── Update accent color when trip changes ────────────────────────────────
+  // Accent color update
   useEffect(() => {
     if (!mapReady) return
     const map = mapRef.current
@@ -133,49 +154,40 @@ export default function MapCanvas({
     map.setPaintProperty('day-route-line', 'line-color', trip.accentColor || '#E8583A')
   }, [trip.accentColor, mapReady])
 
-  // ─── Render pins for the active day ───────────────────────────────────────
+  // ─── Markers ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (!mapReady) return
     const map = mapRef.current
 
-    // Remove old markers
     Object.values(markersRef.current).forEach((m) => m.remove())
     markersRef.current = {}
 
-    // Build marker for each stop (numbered)
     stops.forEach((stop, idx) => {
       const place = trip.places.find((p) => p.id === stop.placeId)
       if (!place) return
 
       const el = document.createElement('div')
-      const catClass = `cat-${place.category}`
-      el.className = `pin ${catClass} ${activePlaceId === place.id ? 'is-active' : ''}`
+      el.className = `pin cat-${place.category} ${activePlaceId === place.id ? 'is-active' : ''}`
       el.textContent = String(idx + 1)
 
-      el.addEventListener('mouseenter', () => {
-        onHoverPlace?.(place, stop, idx)
-      })
-      el.addEventListener('mouseleave', () => {
-        onHoverPlace?.(null, null, -1)
-      })
+      el.addEventListener('mouseenter', () => onHoverPlace?.(place, stop, idx))
+      el.addEventListener('mouseleave', () => onHoverPlace?.(null, null, -1))
       el.addEventListener('click', (e) => {
         e.stopPropagation()
         onActivePlaceChange?.(place.id)
       })
 
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+      const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
         .setLngLat(place.coords)
         .addTo(map)
       markersRef.current[`${idx}-${place.id}`] = marker
     })
 
-    // Also add ghost markers for stay places that aren't in today's stops
-    // (so you can see "home base" even on days you don't explicitly visit)
+    // Ghost markers for stays not in this day
     trip.places
       .filter((p) => p.category === 'stay')
       .forEach((place) => {
-        const alreadyInDay = stops.some((s) => s.placeId === place.id)
-        if (alreadyInDay) return
+        if (stops.some((s) => s.placeId === place.id)) return
         const el = document.createElement('div')
         el.className = 'pin pin-ghost cat-stay'
         el.title = place.name + ' (stay)'
@@ -186,19 +198,24 @@ export default function MapCanvas({
           e.stopPropagation()
           onActivePlaceChange?.(place.id)
         })
-        const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        const marker = new maplibregl.Marker({ element: el, anchor: 'center' })
           .setLngLat(place.coords)
           .addTo(map)
         markersRef.current[`ghost-${place.id}`] = marker
       })
   }, [stops, trip.places, activePlaceId, mapReady, onHoverPlace, onActivePlaceChange])
 
-  // ─── Fetch + draw routes for the active day ───────────────────────────────
+  // ─── Routes ───────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!mapReady || stops.length < 2) {
-      const map = mapRef.current
-      if (map?.getSource('day-route')) {
-        map.getSource('day-route').setData({ type: 'FeatureCollection', features: [] })
+    if (!mapReady) return
+    const map = mapRef.current
+
+    if (stops.length < 2) {
+      map.getSource('day-route')?.setData({ type: 'FeatureCollection', features: [] })
+      // Still fit bounds on single stop
+      if (stops.length === 1) {
+        const c = trip.places.find((p) => p.id === stops[0].placeId)?.coords
+        if (c) map.flyTo({ center: c, zoom: 13, duration: 900 })
       }
       return
     }
@@ -232,7 +249,6 @@ export default function MapCanvas({
         features,
       })
 
-      // Fit bounds on day change (only when not actively playing)
       if (!playing && stops.length) {
         const coords = stops
           .map((s) => trip.places.find((p) => p.id === s.placeId)?.coords)
@@ -240,26 +256,20 @@ export default function MapCanvas({
         if (coords.length > 1) {
           const bounds = coords.reduce(
             (b, c) => b.extend(c),
-            new mapboxgl.LngLatBounds(coords[0], coords[0])
+            new maplibregl.LngLatBounds(coords[0], coords[0])
           )
           mapRef.current?.fitBounds(bounds, { padding: 100, duration: 900 })
-        } else if (coords.length === 1) {
-          mapRef.current?.flyTo({ center: coords[0], zoom: 13, duration: 900 })
         }
       }
     })()
 
-    return () => {
-      cancelled = true
-    }
+    return () => { cancelled = true }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeDay, trip.id, mapReady])
 
-  // ─── Play mode: fly through stops step by step ────────────────────────────
+  // ─── Play mode ────────────────────────────────────────────────────────────
   const stopsRef = useRef(stops)
-  useEffect(() => {
-    stopsRef.current = stops
-  }, [stops])
+  useEffect(() => { stopsRef.current = stops }, [stops])
 
   const flyToStop = useCallback((idx) => {
     const map = mapRef.current
@@ -272,8 +282,6 @@ export default function MapCanvas({
     map.flyTo({
       center: place.coords,
       zoom: 13.5,
-      pitch: 45,
-      bearing: (idx * 30) % 360,
       speed: 0.8,
       curve: 1.4,
       essential: true,
@@ -287,13 +295,11 @@ export default function MapCanvas({
       return
     }
     flyToStop(playStep)
-    const t = setTimeout(() => {
-      onPlayStepChange?.(playStep + 1)
-    }, 3600)
+    const t = setTimeout(() => onPlayStepChange?.(playStep + 1), 3600)
     return () => clearTimeout(t)
   }, [playing, playStep, mapReady, stops.length, flyToStop, onPlayStepChange, onPlayEnd])
 
-  // ─── When a place is selected from outside (hover on numbered list) ──────
+  // External selection → fly to
   useEffect(() => {
     if (!mapReady || !activePlaceId) return
     const place = trip.places.find((p) => p.id === activePlaceId)
@@ -301,33 +307,11 @@ export default function MapCanvas({
     mapRef.current?.flyTo({ center: place.coords, zoom: 13, duration: 900 })
   }, [activePlaceId, mapReady, trip.places])
 
-  // ─── No token? Show a helpful placeholder. ────────────────────────────────
-  if (!MAPBOX_TOKEN) {
-    return (
-      <div className="h-full w-full flex items-center justify-center p-8 bg-base-700 border border-ink/10 rounded-md">
-        <div className="max-w-md text-center">
-          <div className="editorial-kicker mb-4">Mapbox token missing</div>
-          <p className="font-display display-tight text-3xl mb-4">
-            Almost there.
-          </p>
-          <p className="text-ink-muted text-sm leading-relaxed mb-4">
-            Create a free Mapbox account, grab a public token, and add it to{' '}
-            <span className="mono-num bg-base-500 px-1.5 py-0.5 rounded">.env.local</span>:
-          </p>
-          <pre className="mono-num text-xs bg-base-900 p-3 rounded border border-ink/10 text-left">
-            VITE_MAPBOX_TOKEN=pk.xxxx
-          </pre>
-          <p className="text-ink-dim text-xs mt-4">Restart dev server after adding.</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div
       ref={containerRef}
       className="h-full w-full rounded-md overflow-hidden"
-      style={{ background: '#0E0B08' }}
+      style={{ background: '#F4EFE6' }}
     />
   )
 }

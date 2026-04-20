@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────────────────────────
-// Shared utilities: Mapbox directions, currency formatting, localStorage, dates
+// Shared utilities: OSRM directions, currency formatting, localStorage, dates,
+// Google Maps / tel: link builders.
 // ─────────────────────────────────────────────────────────────────────────────
-
-export const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || ''
 
 export const CATEGORIES = [
   { id: 'stay', label: 'Stay', hint: 'hotels, hostels, surf schools' },
@@ -10,13 +9,21 @@ export const CATEGORIES = [
   { id: 'restaurant', label: 'Restaurants', hint: 'meals, dinners' },
   { id: 'chill', label: 'Chill zones', hint: 'beaches, viewpoints, parks' },
   { id: 'special', label: 'Special zones', hint: 'classes, experiences' },
-  { id: 'rental', label: 'Bike rental', hint: 'scooty, bicycle' },
+  { id: 'rental', label: 'Rental', hint: 'scooty, bicycle' },
   { id: 'transport', label: 'Transport', hint: 'airports, stations, cabs' },
 ]
 
 export const CATEGORY_MAP = Object.fromEntries(CATEGORIES.map((c) => [c.id, c]))
 
 export const TIME_SLOTS = ['morning', 'afternoon', 'evening']
+
+export const TRANSPORT_TYPES = [
+  { id: 'flight', label: 'Flight', icon: '✈' },
+  { id: 'train', label: 'Train', icon: '⟨⟩' },
+  { id: 'cab', label: 'Cab', icon: '⌁' },
+  { id: 'bus', label: 'Bus', icon: '⊟' },
+  { id: 'ferry', label: 'Ferry', icon: '⌇' },
+]
 
 // ─── Currency ───────────────────────────────────────────────────────────────
 // Rates are INR → target. Editable from the UI (stored with the trip).
@@ -86,9 +93,9 @@ export function tripDurationDays(trip) {
   return Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)) + 1)
 }
 
-// ─── Mapbox Directions ──────────────────────────────────────────────────────
-// Returns { geometry: GeoJSON LineString, distanceMeters, durationSeconds }
-// Caches to localStorage so we don't hammer the API on re-renders.
+// ─── Routing (OSRM public demo server) ──────────────────────────────────────
+// No API key needed. For heavy use, self-host OSRM or swap to OpenRouteService.
+// Returns { geometry, distanceMeters, durationSeconds }
 
 const routeCache = {
   _get(key) {
@@ -112,18 +119,16 @@ function cacheKey(profile, from, to) {
 export async function getRoute(from, to, profile = 'driving') {
   if (!from || !to) return null
 
-  // Non-road profiles use custom geometry (Mapbox doesn't do trains/flights)
+  // Flights use great-circle arcs, trains fall back to driving.
   if (profile === 'flight') {
     return {
       geometry: greatCircle(from, to),
       distanceMeters: haversine(from, to) * 1000,
-      durationSeconds: (haversine(from, to) / 700) * 3600, // ~700 km/h
+      durationSeconds: (haversine(from, to) / 700) * 3600,
       synthesized: true,
     }
   }
-  if (profile === 'train') {
-    // No public train routing via Mapbox — fall back to driving geometry
-    // (close enough for a map visualisation along rail-ish corridors).
+  if (profile === 'train' || profile === 'bus' || profile === 'cab') {
     profile = 'driving'
   }
 
@@ -131,25 +136,13 @@ export async function getRoute(from, to, profile = 'driving') {
   const cached = routeCache._get(key)
   if (cached) return cached
 
-  if (!MAPBOX_TOKEN) {
-    // No token — return straight line so the app still visualises
-    return {
-      geometry: {
-        type: 'LineString',
-        coordinates: [from, to],
-      },
-      distanceMeters: haversine(from, to) * 1000,
-      durationSeconds: (haversine(from, to) / 50) * 3600,
-      synthesized: true,
-    }
-  }
-
   try {
-    const url = `https://api.mapbox.com/directions/v5/mapbox/${profile}/${from.join(',')};${to.join(',')}?geometries=geojson&overview=full&access_token=${MAPBOX_TOKEN}`
+    // OSRM public demo
+    const url = `https://router.project-osrm.org/route/v1/${profile}/${from.join(',')};${to.join(',')}?geometries=geojson&overview=full`
     const res = await fetch(url)
     const data = await res.json()
     const route = data.routes?.[0]
-    if (!route) return null
+    if (!route) throw new Error('no route')
 
     const result = {
       geometry: route.geometry,
@@ -160,7 +153,7 @@ export async function getRoute(from, to, profile = 'driving') {
     routeCache._set(key, result)
     return result
   } catch (err) {
-    console.warn('Mapbox directions failed', err)
+    console.warn('OSRM routing failed, falling back to straight line:', err)
     return {
       geometry: { type: 'LineString', coordinates: [from, to] },
       distanceMeters: haversine(from, to) * 1000,
@@ -170,7 +163,6 @@ export async function getRoute(from, to, profile = 'driving') {
   }
 }
 
-// Haversine distance in km
 function haversine([lng1, lat1], [lng2, lat2]) {
   const R = 6371
   const dLat = ((lat2 - lat1) * Math.PI) / 180
@@ -183,12 +175,10 @@ function haversine([lng1, lat1], [lng2, lat2]) {
   return 2 * R * Math.asin(Math.sqrt(a))
 }
 
-// Great-circle arc approximation (for flight lines)
 function greatCircle(from, to, steps = 48) {
   const coords = []
   for (let i = 0; i <= steps; i++) {
     const f = i / steps
-    // Spherical linear interpolation along the surface
     const [lng1, lat1] = from.map((v) => (v * Math.PI) / 180)
     const [lng2, lat2] = to.map((v) => (v * Math.PI) / 180)
     const d =
@@ -228,6 +218,49 @@ export function formatDuration(seconds) {
   const h = Math.floor(mins / 60)
   const m = mins % 60
   return m ? `${h}h ${m}m` : `${h}h`
+}
+
+// ─── Link builders ──────────────────────────────────────────────────────────
+// Google Maps link: prefers address + name, falls back to coords
+export function mapsLink(place) {
+  if (!place) return '#'
+  if (place.address) {
+    const query = encodeURIComponent(`${place.name}, ${place.address}`)
+    return `https://www.google.com/maps/search/?api=1&query=${query}`
+  }
+  if (place.coords) {
+    return `https://www.google.com/maps/search/?api=1&query=${place.coords[1]},${place.coords[0]}`
+  }
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`
+}
+
+export function telLink(phone) {
+  if (!phone) return ''
+  // Keep + at start if present, strip spaces/dashes/parens
+  const clean = phone.replace(/[\s\-()]/g, '')
+  return `tel:${clean}`
+}
+
+// ─── Share builder ──────────────────────────────────────────────────────────
+export function buildShareUrl(tripId) {
+  try {
+    const url = new URL(window.location.href)
+    url.searchParams.set('trip', tripId)
+    // Remove editor hash/state
+    url.hash = ''
+    return url.toString()
+  } catch {
+    return ''
+  }
+}
+
+export async function copyToClipboard(text) {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    return false
+  }
 }
 
 // ─── Misc ───────────────────────────────────────────────────────────────────

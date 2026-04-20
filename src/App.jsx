@@ -1,48 +1,37 @@
-import { useState, useEffect } from 'react'
-import { useActiveTrip, useUrlSync } from './store'
+import { useEffect, useState } from 'react'
 import Chrome from './components/Chrome'
 import Hero from './components/Hero'
 import Stage from './components/Stage'
 import Info from './components/Info'
+import Expenses from './components/Expenses'
 import { Packing, Checklist, Contacts } from './components/Lists'
 import Editor from './components/Editor'
+import { useActiveTrip, useUrlSync } from './store'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// App
-//
-// Top-level page shell. The only state that lives up here is UI state that
-// needs to be shared between Stage/Map/Sidebar/Editor:
-//   - activeDay
-//   - activePlaceId (the selected pin)
-//   - playing + playStep (cinematic fly-through)
-//   - editorMode (shows right-side editor panel)
-//   - pendingCoords (set by map click in editor mode)
-//
-// Trip data lives in the store (see src/store.js).
+// Top-level composition. Sections in order:
+//   Chrome · Hero · Stage (map+sidebar) · Info · Expenses · Packing · Checklist · Contacts
 // ─────────────────────────────────────────────────────────────────────────────
 
 export default function App() {
   useUrlSync()
   const trip = useActiveTrip()
-
+  const [editorMode, setEditorMode] = useState(false)
+  const [pendingMapClick, setPendingMapClick] = useState(null)
   const [activeDay, setActiveDay] = useState(1)
   const [activePlaceId, setActivePlaceId] = useState(null)
   const [playing, setPlaying] = useState(false)
   const [playStep, setPlayStep] = useState(0)
-  const [editorMode, setEditorMode] = useState(false)
-  const [pendingCoords, setPendingCoords] = useState(null)
 
-  // Sync accent color to CSS variable whenever trip changes
+  // Accent color → CSS variables
   useEffect(() => {
     if (!trip) return
-    document.documentElement.style.setProperty('--accent', trip.accentColor || '#E8583A')
-    document.documentElement.style.setProperty(
-      '--accent-soft',
-      hexToRgba(trip.accentColor || '#E8583A', 0.12)
-    )
+    const root = document.documentElement
+    root.style.setProperty('--accent', trip.accentColor || '#E8583A')
+    root.style.setProperty('--accent-soft', `${trip.accentColor || '#E8583A'}26`)
   }, [trip?.accentColor])
 
-  // Reset activeDay when trip changes
+  // Reset state when switching trips
   useEffect(() => {
     setActiveDay(1)
     setActivePlaceId(null)
@@ -50,27 +39,13 @@ export default function App() {
     setPlayStep(0)
   }, [trip?.id])
 
-  if (!trip) {
-    return (
-      <div className="h-full flex items-center justify-center text-ink-muted">
-        Loading…
-      </div>
-    )
-  }
-
   const handlePlayToggle = () => {
-    if (playing) {
-      setPlaying(false)
-    } else {
-      setPlayStep(0)
-      setPlaying(true)
-    }
+    if (playing) { setPlaying(false) }
+    else { setPlayStep(0); setPlaying(true) }
   }
+  const handlePlayEnd = () => { setPlaying(false); setPlayStep(0) }
 
-  const handlePlayEnd = () => {
-    setPlaying(false)
-    setPlayStep(0)
-  }
+  if (!trip) return <div className="h-screen flex items-center justify-center text-ink-dim">Loading…</div>
 
   return (
     <div className="min-h-screen">
@@ -80,77 +55,60 @@ export default function App() {
         onEditorToggle={() => setEditorMode((v) => !v)}
       />
 
-      <main className={editorMode ? 'pr-[480px]' : ''}>
-        <Hero trip={trip} />
+      <Hero trip={trip} />
 
-        <Stage
-          trip={trip}
-          activeDay={activeDay}
-          onActiveDayChange={setActiveDay}
-          activePlaceId={activePlaceId}
-          onActivePlaceChange={setActivePlaceId}
-          playing={playing}
-          onPlayToggle={handlePlayToggle}
-          playStep={playStep}
-          onPlayStepChange={setPlayStep}
-          onPlayEnd={handlePlayEnd}
-          editorMode={editorMode}
-          onMapClick={(coords) => setPendingCoords(coords)}
-        />
+      <Stage
+        trip={trip}
+        activeDay={activeDay}
+        onActiveDayChange={setActiveDay}
+        activePlaceId={activePlaceId}
+        onActivePlaceChange={setActivePlaceId}
+        playing={playing}
+        onPlayToggle={handlePlayToggle}
+        playStep={playStep}
+        onPlayStepChange={setPlayStep}
+        onPlayEnd={handlePlayEnd}
+        editorMode={editorMode}
+        onMapClick={(coords) => { setPendingMapClick(coords); if (!editorMode) setEditorMode(true) }}
+      />
 
-        <div className="rule" />
+      <div className="rule" />
+      <Info trip={trip} />
+      <div className="rule" />
+      <Expenses trip={trip} />
+      <div className="rule" />
+      <Packing trip={trip} />
+      <div className="rule" />
+      <Checklist trip={trip} />
+      <div className="rule" />
+      <Contacts trip={trip} />
 
-        <Info trip={trip} editorMode={editorMode} />
-
-        <div className="rule" />
-
-        <Packing trip={trip} />
-
-        <div className="rule" />
-
-        <Checklist trip={trip} />
-
-        <div className="rule" />
-
-        <Contacts trip={trip} />
-
-        {/* Footer */}
-        <footer className="px-8 lg:px-16 py-16 max-w-[1600px] mx-auto">
-          <div className="rule mb-10" />
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div>
-              <div
-                className="w-2 h-2 rounded-full inline-block mr-2 align-middle"
-                style={{ background: trip.accentColor }}
-              />
-              <span className="mono-num text-xs uppercase tracking-[0.25em] text-ink-muted">
-                Trip Vision · daydream louder
-              </span>
+      <footer className="px-4 md:px-8 lg:px-16 py-10 max-w-[1600px] mx-auto">
+        <div className="flex items-center justify-between flex-wrap gap-4 pt-8 border-t border-ink/10">
+          <div>
+            <div className="mono-num text-[10px] uppercase tracking-[0.25em] text-ink-dim">
+              Trip Vision
             </div>
-            <div className="mono-num text-xs text-ink-dim">
-              {trip.days?.length} days · {trip.places?.length} places · made with love + mapbox
+            <div className="font-display italic text-ink-muted mt-1">
+              A daydreaming board for {trip.name}.
             </div>
           </div>
-        </footer>
-      </main>
+          <div className="mono-num text-[10px] uppercase tracking-[0.2em] text-ink-dim text-right">
+            Map: MapLibre + Carto<br />
+            Routing: OSRM<br />
+            No token required.
+          </div>
+        </div>
+      </footer>
 
       {editorMode && (
         <Editor
           trip={trip}
-          activeDay={activeDay}
-          onActiveDayChange={setActiveDay}
-          pendingCoords={pendingCoords}
-          onPendingCoordsConsumed={() => setPendingCoords(null)}
+          pendingMapClick={pendingMapClick}
+          onClearMapClick={() => setPendingMapClick(null)}
+          onClose={() => { setEditorMode(false); setPendingMapClick(null) }}
         />
       )}
     </div>
   )
-}
-
-function hexToRgba(hex, alpha) {
-  const clean = hex.replace('#', '')
-  const r = parseInt(clean.slice(0, 2), 16)
-  const g = parseInt(clean.slice(2, 4), 16)
-  const b = parseInt(clean.slice(4, 6), 16)
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`
 }

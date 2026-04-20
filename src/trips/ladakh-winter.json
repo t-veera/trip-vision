@@ -1,0 +1,124 @@
+{
+  "id": "ladakh-winter-2027",
+  "name": "Ladakh: Frozen River",
+  "origin": "Delhi, India",
+  "vision": "Walk the Chadar trek on the frozen Zanskar river. Cold, quiet, the kind of scale that resets your head. Monasteries at sunrise. Thukpa and butter tea. No wifi, mostly.",
+  "startDate": "2027-01-22",
+  "endDate": "2027-01-31",
+  "currency": "INR",
+  "accentColor": "#7EB6D9",
+  "heroImage": "https://images.unsplash.com/photo-1609137144813-7d9921338f24?auto=format&fit=crop&w=2000&q=80",
+  "mapCenter": [77.58, 34.15],
+  "mapZoom": 9,
+  "info": {
+    "visa": { "title": "Visa / Permit", "notes": "No visa (domestic). Inner Line Permit required for Zanskar — arranged by trek operator.", "cost": 600, "url": "https://www.lahdcleh.in/" },
+    "esim": { "title": "SIM", "notes": "Only BSNL/Jio postpaid work in Leh. No network beyond Chilling. Buy BSNL SIM in Delhi before travel.", "cost": 500, "url": "https://www.bsnl.co.in/" },
+    "network": { "title": "Connectivity", "notes": "Plan for zero connectivity Days 4-8. Tell family in advance.", "cost": 0, "url": "" },
+    "exchange": { "title": "Cash", "rate": "INR only", "notes": "No ATMs outside Leh. Withdraw ₹25-30k in Leh. Small notes for tea stops.", "cost": 0, "url": "" },
+    "insurance": { "title": "Trek Insurance", "notes": "Must cover high-altitude trekking above 4500m + evac. ICICI/TATA AIG have specific adventure riders.", "cost": 4800, "url": "https://www.worldnomads.com/" },
+    "medical": { "title": "Altitude / Medical", "notes": "Diamox (125mg, start day before Leh). AMS awareness crucial. Carry: Dexamethasone (emergency), ORS, thermals × 3, lip balm.", "cost": 2500, "url": "https://wwwnc.cdc.gov/travel/yellowbook/2024/environmental-hazards-risks/high-elevation-travel-and-altitude-illness" }
+  },
+  "transport": [
+    { "id": "t1", "type": "flight", "from": "DEL", "to": "IXL", "date": "2027-01-22", "time": "05:50", "provider": "IndiGo 6E 2031", "cost": 9500, "notes": "Morning flights less turbulent. Left window for Himalayan views." },
+    { "id": "t2", "type": "cab", "from": "Leh Airport", "to": "Hotel", "date": "2027-01-22", "time": "08:00", "provider": "Hotel pickup", "cost": 500, "notes": "" },
+    { "id": "t3", "type": "cab", "from": "Leh", "to": "Chilling (trek start)", "date": "2027-01-25", "time": "07:00", "provider": "Trek operator", "cost": 2500, "notes": "3.5 hrs. Included in most trek packages." },
+    { "id": "t4", "type": "cab", "from": "Chilling", "to": "Leh", "date": "2027-01-30", "time": "10:00", "provider": "Trek operator", "cost": 2500, "notes": "" },
+    { "id": "t5", "type": "flight", "from": "IXL", "to": "DEL", "date": "2027-01-31", "time": "09:15", "provider": "IndiGo 6E 2032", "cost": 11000, "notes": "" }
+  ],
+  "places": [
+    { "id": "ixl-airport", "name": "Leh Airport (IXL)", "category": "transport", "coords": [77.5466, 34.1358], "address": "Leh, Ladakh 194101", "image": "https://images.unsplash.com/photo-1605640840605-14ac1855827b?auto=format&fit=crop&w=1200&q=80", "notes": "3500m elevation — take it SLOW. Do not hike day 1.", "priceINR": 0 },
+    { "id": "zostel-leh", "name": "Zostel Leh", "category": "stay", "coords": [77.5783, 34.1650], "address": "Changspa Rd, Leh 194101", "image": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1200&q=80", "notes": "Acclimatisation base. Warm rooms, heated dining hall.", "priceINR": 1500, "priceUnit": "per night", "contact": "+91 88000 99099" },
+    { "id": "thiksey-monastery", "name": "Thiksey Monastery", "category": "special", "coords": [77.6672, 34.0583], "address": "Thiksey, Leh 194201", "image": "https://images.unsplash.com/photo-1606049513085-10f2c5ddefa3?auto=format&fit=crop&w=1200&q=80", "notes": "6am prayers. Be there by 5:45. Butter tea in the inner hall.", "priceINR": 100 },
+    { "id": "hemis-monastery", "name": "Hemis Monastery", "category": "special", "coords": [77.7103, 33.9131], "address": "Hemis, Leh 194201", "image": "https://images.unsplash.com/photo-1594474944085-28e3ac6c2c01?auto=format&fit=crop&w=1200&q=80", "notes": "Largest in Ladakh. Ancient thangkas.", "priceINR": 100 },
+    { "id": "tibetan-kitchen", "name": "Tibetan Kitchen", "category": "restaurant", "coords": [77.5770, 34.1638], "address": "Fort Rd, Leh 194101", "image": "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=1200&q=80", "notes": "Thukpa, momos, tingmo. Warm bowls before/after trek.", "priceINR": 600 },
+    { "id": "bon-appetit", "name": "Bon Appetit", "category": "cafe", "coords": [77.5782, 34.1642], "address": "Changspa Rd, Leh", "image": "https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=1200&q=80", "notes": "Only wifi spot. Apple pie. Journaling base.", "priceINR": 450 },
+    { "id": "chadar-start", "name": "Chilling (Trek start)", "category": "special", "coords": [77.2589, 34.1189], "address": "Chilling, Zanskar", "image": "https://images.unsplash.com/photo-1454496522488-7a8e488e8606?auto=format&fit=crop&w=1200&q=80", "notes": "Trek briefing at dawn. Ice check. Gaiters on.", "priceINR": 42000, "priceUnit": "6-day trek package" },
+    { "id": "tilad-do", "name": "Tilad Do (Camp 1)", "category": "chill", "coords": [77.1850, 34.0100], "address": "Zanskar River", "image": "https://images.unsplash.com/photo-1478719059408-592965723cbc?auto=format&fit=crop&w=1200&q=80", "notes": "Frozen river campsite. Tea by the bonfire. Stars like you've never seen.", "priceINR": 0 },
+    { "id": "nerak", "name": "Nerak Waterfall", "category": "chill", "coords": [77.0500, 33.8900], "address": "Zanskar Valley", "image": "https://images.unsplash.com/photo-1606117331085-5760e3b58520?auto=format&fit=crop&w=1200&q=80", "notes": "Frozen waterfall. Turnaround point. Touch it. Cry maybe.", "priceINR": 0 }
+  ],
+  "days": [
+    { "day": 1, "date": "2027-01-22", "title": "Arrive, slow down",
+      "stops": [
+        { "placeId": "ixl-airport", "time": "morning", "experience": "Land. Breathe. Move slow.", "visionTags": [] },
+        { "placeId": "zostel-leh", "time": "morning", "experience": "Check in. Sleep. Hydrate.", "visionTags": ["slow"] },
+        { "placeId": "tibetan-kitchen", "time": "evening", "experience": "First thukpa. Warm hands.", "visionTags": ["food"] }
+      ], "miscExpenses": [{ "id": "m1-1", "label": "Diamox + ORS refills", "cost": 400 }]
+    },
+    { "day": 2, "date": "2027-01-23", "title": "Acclimatise",
+      "stops": [
+        { "placeId": "bon-appetit", "time": "morning", "experience": "Apple pie + wifi while you still can", "visionTags": ["cafe"] },
+        { "placeId": "zostel-leh", "time": "afternoon", "experience": "Short walk. Rest. No exertion.", "visionTags": ["slow"] },
+        { "placeId": "tibetan-kitchen", "time": "evening", "experience": "Momos + thenthuk", "visionTags": ["food"] }
+      ], "miscExpenses": []
+    },
+    { "day": 3, "date": "2027-01-24", "title": "Monastery dawn",
+      "stops": [
+        { "placeId": "thiksey-monastery", "time": "morning", "experience": "6am prayers. Butter tea.", "visionTags": ["spiritual", "slow"] },
+        { "placeId": "hemis-monastery", "time": "afternoon", "experience": "Thangkas + silence", "visionTags": ["spiritual"] },
+        { "placeId": "bon-appetit", "time": "evening", "experience": "Last wifi. Upload photos. Text family.", "visionTags": ["cafe"] }
+      ], "miscExpenses": [{ "id": "m3-1", "label": "Postcards from Thiksey shop", "cost": 400 }]
+    },
+    { "day": 4, "date": "2027-01-25", "title": "Trek begins",
+      "stops": [
+        { "placeId": "chadar-start", "time": "morning", "experience": "Drive to Chilling. Boot the ice boots. Go.", "visionTags": ["adventure"] },
+        { "placeId": "tilad-do", "time": "evening", "experience": "First camp. Bonfire. No phone.", "visionTags": ["slow", "adventure"] }
+      ], "miscExpenses": []
+    },
+    { "day": 5, "date": "2027-01-26", "title": "Deep in", "stops": [{ "placeId": "tilad-do", "time": "morning", "experience": "Walking on a river. Let that sink in.", "visionTags": ["adventure"] }], "miscExpenses": [] },
+    { "day": 6, "date": "2027-01-27", "title": "Nerak",
+      "stops": [
+        { "placeId": "nerak", "time": "afternoon", "experience": "Frozen waterfall. Touch it.", "visionTags": ["adventure", "spiritual"] }
+      ], "miscExpenses": []
+    },
+    { "day": 7, "date": "2027-01-28", "title": "Turn", "stops": [{ "placeId": "tilad-do", "time": "morning", "experience": "Walk back. Same river, different direction.", "visionTags": ["slow"] }], "miscExpenses": [] },
+    { "day": 8, "date": "2027-01-29", "title": "Last ice",
+      "stops": [{ "placeId": "chadar-start", "time": "afternoon", "experience": "Back to Chilling. Feet remembering road.", "visionTags": [] }],
+      "miscExpenses": []
+    },
+    { "day": 9, "date": "2027-01-30", "title": "Back to Leh",
+      "stops": [
+        { "placeId": "zostel-leh", "time": "afternoon", "experience": "Real bed. Real shower.", "visionTags": ["slow"] },
+        { "placeId": "tibetan-kitchen", "time": "evening", "experience": "Celebrate with tingmo.", "visionTags": ["food"] }
+      ],
+      "miscExpenses": [{ "id": "m9-1", "label": "Pashmina from old market", "cost": 3500 }]
+    },
+    { "day": 10, "date": "2027-01-31", "title": "Home",
+      "stops": [{ "placeId": "ixl-airport", "time": "morning", "experience": "Fly back. Already planning summer.", "visionTags": [] }],
+      "miscExpenses": [{ "id": "m10-1", "label": "Airport chai", "cost": 80 }]
+    }
+  ],
+  "packing": [
+    { "id": "bag-suitcase", "title": "Duffel", "items": [
+      { "id": "p1", "text": "Down jacket (-20°C)", "checked": false },
+      { "id": "p2", "text": "Thermals × 3 (merino)", "checked": false },
+      { "id": "p3", "text": "Fleece mid-layer × 2", "checked": false },
+      { "id": "p4", "text": "Trek pants × 2 (insulated)", "checked": false },
+      { "id": "p5", "text": "Trek socks × 6 (wool)", "checked": false },
+      { "id": "p6", "text": "Gum boots + gaiters (trek ops provide)", "checked": false }
+    ]},
+    { "id": "bag-daypack", "title": "Daypack", "items": [
+      { "id": "p7", "text": "Insulated water bottle (1L)", "checked": false },
+      { "id": "p8", "text": "Headlamp + spare batteries", "checked": false },
+      { "id": "p9", "text": "Sunglasses (glacier-grade)", "checked": false },
+      { "id": "p10", "text": "Lip balm × 2", "checked": false },
+      { "id": "p11", "text": "Hand warmers × 10", "checked": false },
+      { "id": "p12", "text": "Kindle + backup paperback", "checked": false }
+    ]},
+    { "id": "bag-body", "title": "On you", "items": [
+      { "id": "p13", "text": "Passport + permit copies", "checked": false },
+      { "id": "p14", "text": "Cash (INR, small notes)", "checked": false },
+      { "id": "p15", "text": "Altitude meds (Diamox, Dex)", "checked": false },
+      { "id": "p16", "text": "Emergency whistle", "checked": false }
+    ]}
+  ],
+  "checklist": [
+    { "id": "c1", "text": "Book trek (Chadar ops — 3 months ahead)", "checked": false },
+    { "id": "c2", "text": "Get Inner Line Permit via operator", "checked": false },
+    { "id": "c3", "text": "GP visit — altitude meds Rx", "checked": false },
+    { "id": "c4", "text": "Trek insurance (high-altitude rider!)", "checked": false },
+    { "id": "c5", "text": "Test layers on a cold weekend", "checked": false },
+    { "id": "c6", "text": "Buy BSNL SIM in Delhi", "checked": false },
+    { "id": "c7", "text": "Share itinerary with family", "checked": false },
+    { "id": "c8", "text": "Download offline maps", "checked": false }
+  ]
+}

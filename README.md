@@ -1,188 +1,157 @@
 # Trip Vision
 
-A daydreaming board for your trips. Interactive Mapbox map as the hero, with your day-by-day itinerary, budgets, packing list, and logistics all woven into an editorial layout. Hover pins to see distance/time from where you're staying. Hit play to cinematically fly through a day.
+An interactive trip-planning daydream board. Editorial dark-theme aesthetic. Hero map, per-day timelines, budget breakdowns, packing lists grouped by bag, expense rollups, and live-editable everything.
 
-Built to live on GitHub Pages so you can share links with friends.
+![Trip Vision](https://images.unsplash.com/photo-1586500036706-41963de24d8b?auto=format&fit=crop&w=1400&q=80)
 
----
-
-## Quick start
+## Quickstart
 
 ```bash
 npm install
-cp .env.example .env.local
-# Edit .env.local and paste your Mapbox public token
 npm run dev
 ```
 
-Open http://localhost:5173. You'll see the sample Sri Lanka surf trip.
+Open http://localhost:5173. That's it — no API keys, no tokens, no credit card.
 
-### Get a Mapbox token (free, takes 90 seconds)
+- **Map:** MapLibre GL + Carto's free dark basemap
+- **Routing:** OSRM public demo server
+- **Storage:** localStorage (your edits persist in your browser)
 
-1. Sign up at https://account.mapbox.com/
-2. Go to **Access tokens** → use the default public token (or make a new one)
-3. Recommended: restrict it to your production domain (`https://<your-username>.github.io/*`) and to `localhost` for dev
-4. Paste into `.env.local` as `VITE_MAPBOX_TOKEN=pk.xxxxx`
+## What's inside
 
-The free tier gives you 50,000 map loads and 100,000 Directions API requests per month. Plenty for a personal daydreaming board.
+- Two sample trips out of the box: **Sri Lanka (Surf & Slow)** and **Ladakh (Frozen River)**
+- Cinematic "Play day" mode that flies through stops
+- Clickable contacts — addresses open Google Maps, phone numbers open your dialer
+- Inline edit everywhere: click the **Edit** button on any card, or toggle **Edit** in the top nav for the full editor
+- Share button (top-right) copies a link you can send anyone
+- Full expense breakdown: pre-trip (visa, e-SIM, insurance) + transport + daily + misc
 
----
+## Ask Claude to generate a JSON for a new trip
 
-## How to use it
+Share this repo link with any Claude and say:
 
-### The map
-- **Pins are numbered by the day's sequence.** Colour = category (stay, cafe, restaurant, chill, special, rental, transport).
-- **Hover a pin** for a detail card with the experience, price, vision tags, and travel time/distance from your stay (hostel/hotel).
-- **Click a pin** to lock it as active.
-- **Routes follow roads** (Mapbox Directions API). For flights between airports, a great-circle arc is drawn. Train routing falls back to driving geometry since Mapbox doesn't do rail — you can adjust coordinates in the editor for approximate rail visuals if needed.
+> "Using the trip JSON schema in this repo (`src/trips/sri-lanka-surf.json` is a good reference), generate a new trip JSON for [destination], [duration], [vibe]."
 
-### The sidebar
-- Pick a day from the dropdown or arrows
-- Hit **Play day** for a cinematic fly-through — map pans, zooms, and rotates through each stop with the card updating as it goes
-- Toggle between **day total** and **whole trip total**. Switch currencies (INR, USD, EUR, LKR, GBP, AED, THB, JPY).
+Then drop the JSON into Trip Vision via **Edit → Import** (top-right of the editor drawer). Done. Below is the schema.
 
-### The sections below
-- **Logistics** — visa, e-SIM, mobile network, exchange rate. All editable.
-- **Flights & transport** — inline table, add rows as you go.
-- **Packing list** — editable, with checkboxes.
-- **Pre-trip checklist** — editable, with an animated progress bar.
-- **Contacts & addresses** — a filterable directory of every place with a phone number or useful note.
-
-### Editor mode
-Flip the **Edit** toggle (top right). A side panel opens with three tabs:
-
-- **Places** — add/edit/delete all places. Click anywhere on the map to drop a new pin with coordinates prefilled.
-- **Day composer** — build or reorder days. Pick stops from your place pool, set time-of-day, vision tags, and the experience sentence.
-- **Meta** — change the trip name, vision statement, dates, accent color, and hero image.
-
-**Export JSON** at any time to save a backup. **Import JSON** to restore or move between browsers.
-
-> Everything is persisted to `localStorage` in your browser. If you clear storage, the default Sri Lanka trip comes back, and any other trips are lost unless you exported them.
-
----
-
-## Adding a new trip
-
-Two options:
-
-**1. Through the UI (fastest)**
-Click the trip name in the top nav → **New trip** → fill in name → edit in place.
-
-**2. Pre-made JSON**
-Drop a JSON file into `src/trips/` and import it in `src/store.js`:
-
-```js
-import mySnowTrip from './trips/ladakh-winter.json'
-const DEFAULT_TRIPS = [sriLankaSurf, mySnowTrip]
-```
-
-### Trip JSON structure
+### Trip JSON schema
 
 ```jsonc
 {
-  "id": "unique-id",
-  "name": "Display name",
-  "vision": "The feeling you're chasing",
-  "startDate": "2026-01-15",
-  "endDate": "2026-01-22",
-  "currency": "INR",
-  "accentColor": "#E8583A",   // hex, drives the whole UI theme
-  "heroImage": "https://…",
-  "mapCenter": [lng, lat],
+  "id": "unique-kebab-case-id",              // required, used as URL param
+  "name": "Trip name",                        // required
+  "origin": "Hyderabad, India",               // where you're flying from
+  "vision": "What you want this to feel like",// freeform paragraph
+  "startDate": "2026-05-10",                  // ISO date
+  "endDate": "2026-05-19",
+  "currency": "INR",                          // default display currency
+  "accentColor": "#E8583A",                   // hex, drives the whole theme
+  "heroImage": "https://...",                 // large image, Unsplash works
+  "mapCenter": [80.45, 5.97],                 // [lng, lat] where map opens
   "mapZoom": 9,
+
   "info": {
-    "visa":     { "title": "Visa",     "notes": "…", "cost": 4200 },
-    "esim":     { "title": "E-SIM",    "notes": "…", "cost": 1800 },
-    "network":  { "title": "Network",  "notes": "…", "cost": 0 },
-    "exchange": { "title": "Exchange", "notes": "…", "cost": 0 }
+    "visa":      { "title": "Visa",               "notes": "...", "cost": 4200, "url": "https://..." },
+    "esim":      { "title": "E-SIM",              "notes": "...", "cost": 1800, "url": "https://..." },
+    "network":   { "title": "Mobile Network",     "notes": "...", "cost": 0,    "url": "https://..." },
+    "exchange":  { "title": "Exchange Rate",      "rate": "1 INR = 3.55 LKR",   "notes": "...", "cost": 0, "url": "..." },
+    "insurance": { "title": "Travel Insurance",   "notes": "...", "cost": 3500, "url": "https://..." },
+    "medical":   { "title": "Medical",            "notes": "...", "cost": 2000, "url": "https://..." }
   },
-  "flights": [
-    { "from": "BLR", "to": "CMB", "date": "…", "time": "…", "airline": "…", "cost": 18500 }
+
+  "transport": [
+    { "id": "t1", "type": "flight", "from": "HYD", "to": "CMB",
+      "date": "2026-05-10", "time": "06:30",
+      "provider": "IndiGo 6E 1223", "cost": 18500, "notes": "..." },
+    { "id": "t2", "type": "train", "from": "Colombo Fort", "to": "Weligama", ... },
+    { "id": "t3", "type": "cab",   "from": "...",   "to": "...", ... }
+    // type can be: flight | train | cab | bus | ferry
   ],
+
   "places": [
     {
-      "id": "unique-place-id",
+      "id": "hangtime-hostel",
       "name": "Hangtime Hostel",
-      "category": "stay",      // stay | cafe | restaurant | chill | special | rental | transport
-      "coords": [80.4293, 5.9734],   // [lng, lat]
-      "image": "https://…",
-      "notes": "…",
+      "category": "stay",               // stay | cafe | restaurant | chill | special | rental | transport
+      "coords": [80.4293, 5.9734],      // [lng, lat]
+      "address": "Weligama Beach Rd, Weligama, Sri Lanka",
+      "image": "https://...",
+      "notes": "...",
       "priceINR": 2100,
       "priceUnit": "per night",
-      "contact": "+94 …",
-      "travelMode": "driving"  // driving | walking | cycling | train | flight
+      "contact": "+94 77 123 4567"
     }
   ],
+
   "days": [
     {
-      "day": 1,
-      "date": "2026-01-15",
-      "title": "Landing",
+      "day": 1, "date": "2026-05-10", "title": "Landing into slow",
       "stops": [
-        { "placeId": "unique-place-id", "time": "morning", "experience": "…", "visionTags": ["slow"] }
+        { "placeId": "cmb-airport", "time": "morning",
+          "experience": "Land, e-SIM, LKR cash, kottu breakfast",
+          "visionTags": ["slow", "chill"] }
+      ],
+      "miscExpenses": [
+        { "id": "m1-1", "label": "Street food + coconut", "cost": 450 }
       ]
     }
   ],
-  "packing":   [{ "id": "p1", "text": "…", "checked": false }],
-  "checklist": [{ "id": "c1", "text": "…", "checked": false }]
+
+  "packing": [
+    {
+      "id": "bag-suitcase", "title": "Suitcase",
+      "items": [{ "id": "p1", "text": "Boardshorts × 3", "checked": false }]
+    },
+    { "id": "bag-backpack", "title": "Backpack", "items": [...] },
+    { "id": "bag-fanny",    "title": "Fanny pack", "items": [...] }
+  ],
+
+  "checklist": [
+    { "id": "c1", "text": "Apply for ETA", "checked": false }
+  ]
 }
 ```
 
----
+### Field reference
 
-## Deploying to GitHub Pages
+- **`time`** on stops: `morning` | `afternoon` | `evening`
+- **`category`** on places: `stay` | `cafe` | `restaurant` | `chill` | `special` | `rental` | `transport`
+- **`type`** on transport: `flight` | `train` | `cab` | `bus` | `ferry`
+- **`coords`**: always `[longitude, latitude]` (GeoJSON order, not Google's)
+- **`cost` / `priceINR`**: all prices stored in INR; users can toggle display currency in the UI
+- Every `id` must be unique within its array; IDs can be any string without spaces
 
-1. Push this repo to GitHub (e.g. `https://github.com/you/trip-vision`)
-2. In your repo: **Settings → Pages → Source** = **GitHub Actions**
-3. In your repo: **Settings → Secrets and variables → Actions** → add a new secret `VITE_MAPBOX_TOKEN` with your Mapbox public token
-4. Edit `.github/workflows/deploy.yml`:
-   - If deploying to `https://<user>.github.io/trip-vision/` → keep `VITE_BASE: /trip-vision/` (adjust name to match your repo)
-   - If deploying to a custom domain or a user page → set `VITE_BASE: /`
-5. Push to `main`. The workflow builds and publishes. Site goes live at `https://<user>.github.io/<repo-name>/`.
+## Adding your trip to the bundled examples
 
-Restrict your Mapbox token to your `*.github.io` domain so people can't hammer it from elsewhere.
+Drop your JSON into `src/trips/` and import it in `src/store.js`:
 
-### Sharing with friends
-
-Every trip has a deep link: `https://<your-site>/?trip=<trip-id>`. Send that and it opens straight to the right trip.
-
----
-
-## Customising
-
-### Categories
-Edit `src/lib.js` → `CATEGORIES` array. For each new category, add a matching CSS class in `src/index.css`:
-
-```css
-.cat-yourcategory { --cat: #YOURCOLOR; }
+```js
+import myTrip from './trips/my-trip.json'
+const DEFAULT_TRIPS = [sriLankaSurf, ladakhWinter, myTrip]
 ```
 
-### Currencies / exchange rates
-Edit `DEFAULT_RATES` in `src/lib.js`. Rates are INR → target. The UI switcher uses these.
+## Deploy to GitHub Pages
 
-### Colors & fonts
-- Global palette in `tailwind.config.js` (`base` + `ink` + `accent`).
-- Fonts in `index.html` and `src/index.css`. Currently: **Fraunces** (display), **Geist** (body), **Geist Mono** (numbers).
-- Per-trip accent is driven by `trip.accentColor` and automatically flows to the map route, buttons, progress bars, etc.
+1. Push to GitHub
+2. Settings → Pages → Source: **GitHub Actions**
+3. Make sure `vite.config.js` has the right `base` for your repo name (already set via `VITE_BASE`)
+4. Push to `main` — the workflow in `.github/workflows/deploy.yml` will build and deploy
+5. Share: your site will be at `https://<username>.github.io/<repo>/?trip=<trip-id>`
 
----
+The built HTML is fully static — you can also host it anywhere (Netlify, Cloudflare Pages, S3) or just open `dist/index.html` locally after `npm run build`.
 
-## Stack
+## Customization
 
-- React 18 + Vite
-- Tailwind v3
-- Mapbox GL JS v3
-- `motion` (the new Framer Motion) for animations
+- **Accent color:** edit in the trip JSON or live via the editor (Meta tab)
+- **Map style:** change the tile URL in `src/components/MapCanvas.jsx` (Carto also offers `light_all`, `dark_nolabels`, `voyager`)
+- **Currencies:** add to `DEFAULT_RATES` and `CURRENCY_SYMBOLS` in `src/lib.js`
 
-No backend. No database. Just a static site + localStorage + Mapbox.
+## Attribution
 
----
+- Tiles © OpenStreetMap contributors, © Carto
+- Routing via OSRM (`router.project-osrm.org`)
+- Fonts: Fraunces + Geist (Google Fonts)
 
-## Notes
+## License
 
-- **Train routes** fall back to driving geometry. Mapbox doesn't do rail routing. Acceptable for a vision board; if you want literal train tracks, you'd need to drop custom GeoJSON for the route.
-- **Images** can be any URL — Unsplash, your own Cloudinary, a hotel's website, whatever. The app doesn't upload or host anything.
-- **Prices are stored in INR** internally, converted on display. This keeps math consistent when you switch currencies.
-- **Distance/time from stay** is computed via Mapbox Directions and cached in localStorage so repeated hovers don't hit the API.
-
-Daydream louder.
+MIT.

@@ -40,10 +40,10 @@ export default function Stage({
   const cardDayIndex = hoveredPlace ? activeDayIndex : activeDayIndex
 
   return (
-    <section className="px-8 lg:px-16 max-w-[1600px] mx-auto pb-20">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 h-[720px] max-h-[calc(100vh-8rem)]">
+    <section className="px-4 md:px-8 lg:px-16 max-w-[1600px] mx-auto pb-20">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 lg:h-[720px] lg:max-h-[calc(100vh-8rem)]">
         {/* Map with floating card */}
-        <div className="lg:col-span-8 relative">
+        <div className="lg:col-span-8 relative h-[60vh] min-h-[420px] lg:h-auto">
           <MapCanvas
             trip={trip}
             activeDay={activeDay}
@@ -61,7 +61,7 @@ export default function Stage({
           />
 
           {/* Floating card in top-left */}
-          <div className="absolute top-4 left-4 w-[340px] pointer-events-none z-10">
+          <div className="absolute top-4 left-4 right-4 md:right-auto md:w-[340px] pointer-events-none z-10">
             <AnimatePresence mode="wait">
               {cardPlace && (
                 <div key={cardPlace.id} className="pointer-events-auto">
@@ -77,14 +77,14 @@ export default function Stage({
             </AnimatePresence>
           </div>
 
-          {/* Legend in bottom-left */}
-          <div className="absolute bottom-4 left-4 flex flex-wrap gap-2 max-w-md z-10 pointer-events-none">
+          {/* Legend in bottom-left - hide on mobile */}
+          <div className="absolute bottom-4 left-4 hidden md:flex flex-wrap gap-2 max-w-md z-10 pointer-events-none">
             <Legend />
           </div>
         </div>
 
         {/* Sidebar */}
-        <aside className="lg:col-span-4">
+        <aside className="lg:col-span-4 min-h-[520px] lg:min-h-0">
           <Sidebar
             trip={trip}
             activeDay={activeDay}

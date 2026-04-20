@@ -1,233 +1,211 @@
-import { useState } from 'react'
-import { motion } from 'motion/react'
-import { CATEGORIES, CATEGORY_MAP, uid } from '../lib'
-import { updateTrip } from '../store'
+import { useState, useMemo } from 'react'
+import {
+  updateTrip, addPackingGroup, updatePackingGroup, removePackingGroup,
+  addPackingItem, updatePackingItem, removePackingItem, updatePlace,
+} from '../store'
+import { CATEGORIES, CATEGORY_MAP, mapsLink, telLink, uid } from '../lib'
 import { SectionHeader } from './Info'
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Three logistics sections — all editable, persisted through the store.
+// Lists: Packing (grouped by bag) · Checklist · Contacts (clickable)
 // ─────────────────────────────────────────────────────────────────────────────
 
 export function Packing({ trip }) {
-  const [newItem, setNewItem] = useState('')
-
-  const addItem = () => {
-    if (!newItem.trim()) return
-    updateTrip(trip.id, (t) => ({
-      packing: [...(t.packing || []), { id: uid('p'), text: newItem.trim(), checked: false }],
-    }))
-    setNewItem('')
+  const handleAddGroup = () => {
+    const name = prompt('New bag name?', 'Backpack')
+    if (!name) return
+    addPackingGroup(trip.id, { id: uid('bag'), title: name, items: [] })
   }
-
-  const toggle = (id) => {
-    updateTrip(trip.id, (t) => ({
-      packing: t.packing.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)),
-    }))
-  }
-
-  const updateText = (id, text) => {
-    updateTrip(trip.id, (t) => ({
-      packing: t.packing.map((i) => (i.id === id ? { ...i, text } : i)),
-    }))
-  }
-
-  const remove = (id) => {
-    updateTrip(trip.id, (t) => ({
-      packing: t.packing.filter((i) => i.id !== id),
-    }))
-  }
-
-  const checked = trip.packing?.filter((i) => i.checked).length || 0
-  const total = trip.packing?.length || 0
 
   return (
     <section className="py-20 px-8 lg:px-16 max-w-[1600px] mx-auto">
       <SectionHeader
-        kicker="Packing list"
-        title="What goes in the bag."
-        blurb="Editable. Check as you pack."
+        kicker="Pre-flight"
+        title="Packing."
+        blurb="Group by bag. Suitcase, backpack, fanny pack — or whatever you call yours."
         right={
-          <div className="mono-num text-sm text-ink-muted">
-            <span className="text-ink">{checked}</span>
-            <span className="text-ink-dim"> / {total} packed</span>
-          </div>
+          <button onClick={handleAddGroup} className="btn-pill">
+            <span>+</span>
+            <span>Add bag</span>
+          </button>
         }
       />
 
-      <div className="soft-panel-alt p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-1">
-          {trip.packing?.map((item) => (
-            <label
-              key={item.id}
-              className={`group flex items-center gap-3 py-2 cursor-pointer border-b border-ink/5 ${
-                item.checked ? 'opacity-50' : ''
-              }`}
-            >
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  toggle(item.id)
-                }}
-                className={`w-5 h-5 rounded border flex-shrink-0 flex items-center justify-center transition-colors ${
-                  item.checked
-                    ? 'border-transparent'
-                    : 'border-ink/25 hover:border-ink/50'
-                }`}
-                style={item.checked ? { background: 'var(--accent)' } : {}}
-              >
-                {item.checked && (
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#0E0B08" strokeWidth="2">
-                    <path d="M2 5l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
-                  </svg>
-                )}
-              </button>
-              <input
-                value={item.text}
-                onChange={(e) => updateText(item.id, e.target.value)}
-                className={`inline-input text-sm ${item.checked ? 'line-through text-ink-dim' : 'text-ink'}`}
-              />
-              <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  remove(item.id)
-                }}
-                className="text-ink-dim hover:text-ink opacity-0 group-hover:opacity-100 transition"
-              >
-                <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M3 3l6 6M9 3l-6 6" />
-                </svg>
-              </button>
-            </label>
-          ))}
+      {trip.packing?.length === 0 && (
+        <div className="soft-panel-alt p-10 text-center">
+          <div className="text-ink-muted text-sm italic">No bags yet. Click "Add bag" to make one.</div>
         </div>
+      )}
 
-        <div className="flex items-center gap-2 mt-4 pt-4 border-t border-ink/10">
-          <input
-            value={newItem}
-            onChange={(e) => setNewItem(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addItem()}
-            placeholder="Add item…"
-            className="flex-1 bg-transparent border-none outline-none text-sm text-ink placeholder:text-ink-dim"
-          />
-          <button onClick={addItem} className="btn-pill">
-            Add
-          </button>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {trip.packing?.map((group) => (
+          <PackingGroup key={group.id} group={group} tripId={trip.id} />
+        ))}
       </div>
     </section>
   )
 }
 
+function PackingGroup({ group, tripId }) {
+  const [newItem, setNewItem] = useState('')
+  const checked = (group.items || []).filter((i) => i.checked).length
+  const total = (group.items || []).length
+
+  const handleAdd = () => {
+    if (!newItem.trim()) return
+    addPackingItem(tripId, group.id, { id: uid('p'), text: newItem.trim(), checked: false })
+    setNewItem('')
+  }
+
+  return (
+    <div className="soft-panel-alt p-5 flex flex-col">
+      <div className="flex items-center justify-between mb-4 group">
+        <input
+          value={group.title}
+          onChange={(e) => updatePackingGroup(tripId, group.id, { title: e.target.value })}
+          className="inline-input font-display display-tight text-xl text-ink bg-transparent focus:bg-ink/5 rounded px-1 -ml-1 flex-1"
+        />
+        <div className="flex items-center gap-2">
+          <span className="mono-num text-[10px] uppercase tracking-[0.2em] text-ink-dim">
+            {checked}/{total}
+          </span>
+          <button
+            onClick={() => {
+              if (confirm(`Remove "${group.title}" bag and all its items?`)) removePackingGroup(tripId, group.id)
+            }}
+            className="text-ink-dim hover:text-ink opacity-0 group-hover:opacity-100 transition"
+            aria-label="Remove group"
+          >
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <path d="M2 3h8M5 3V2a1 1 0 011-1h0a1 1 0 011 1v1M3 3l.5 8a1 1 0 001 1h3a1 1 0 001-1L9 3" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <ul className="space-y-1 mb-3">
+        {(group.items || []).map((item) => (
+          <li key={item.id} className="group flex items-center gap-2 py-1">
+            <button
+              onClick={() => updatePackingItem(tripId, group.id, item.id, { checked: !item.checked })}
+              className={`w-4 h-4 rounded flex-shrink-0 flex items-center justify-center border transition ${
+                item.checked ? 'bg-accent border-accent' : 'border-ink/20 hover:border-ink/40'
+              }`}
+              style={item.checked ? { background: 'var(--accent)', borderColor: 'var(--accent)' } : {}}
+            >
+              {item.checked && (
+                <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#0E0B08" strokeWidth="2">
+                  <path d="M2 5l2 2 4-4" />
+                </svg>
+              )}
+            </button>
+            <input
+              value={item.text}
+              onChange={(e) => updatePackingItem(tripId, group.id, item.id, { text: e.target.value })}
+              className={`inline-input flex-1 text-sm ${item.checked ? 'text-ink-dim line-through' : 'text-ink-muted'}`}
+            />
+            <button
+              onClick={() => removePackingItem(tripId, group.id, item.id)}
+              className="text-ink-dim hover:text-ink opacity-0 group-hover:opacity-100 transition flex-shrink-0"
+            >
+              <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="currentColor" strokeWidth="1.5">
+                <path d="M2 2l6 6M8 2l-6 6" />
+              </svg>
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex items-center gap-2 pt-3 border-t border-ink/5">
+        <input
+          value={newItem}
+          onChange={(e) => setNewItem(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
+          placeholder="Add item…"
+          className="flex-1 bg-transparent text-sm text-ink outline-none placeholder:text-ink-dim"
+        />
+        <button onClick={handleAdd} className="text-ink-dim hover:text-ink" aria-label="Add">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M7 2v10M2 7h10" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  )
+}
+
+// ─── Checklist ──────────────────────────────────────────────────────────────
 export function Checklist({ trip }) {
   const [newItem, setNewItem] = useState('')
 
-  const addItem = () => {
+  const updateChecklist = (list) => updateTrip(trip.id, { checklist: list })
+  const toggle = (id) => updateChecklist(trip.checklist.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)))
+  const updateItem = (id, text) => updateChecklist(trip.checklist.map((i) => (i.id === id ? { ...i, text } : i)))
+  const remove = (id) => updateChecklist(trip.checklist.filter((i) => i.id !== id))
+  const add = () => {
     if (!newItem.trim()) return
-    updateTrip(trip.id, (t) => ({
-      checklist: [...(t.checklist || []), { id: uid('c'), text: newItem.trim(), checked: false }],
-    }))
+    updateChecklist([...(trip.checklist || []), { id: uid('c'), text: newItem.trim(), checked: false }])
     setNewItem('')
   }
 
-  const toggle = (id) => {
-    updateTrip(trip.id, (t) => ({
-      checklist: t.checklist.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)),
-    }))
-  }
-
-  const updateText = (id, text) => {
-    updateTrip(trip.id, (t) => ({
-      checklist: t.checklist.map((i) => (i.id === id ? { ...i, text } : i)),
-    }))
-  }
-
-  const remove = (id) => {
-    updateTrip(trip.id, (t) => ({
-      checklist: t.checklist.filter((i) => i.id !== id),
-    }))
-  }
-
-  const checked = trip.checklist?.filter((i) => i.checked).length || 0
-  const total = trip.checklist?.length || 0
-  const pct = total > 0 ? (checked / total) * 100 : 0
+  const done = (trip.checklist || []).filter((i) => i.checked).length
+  const total = (trip.checklist || []).length
 
   return (
     <section className="py-20 px-8 lg:px-16 max-w-[1600px] mx-auto">
       <SectionHeader
-        kicker="Pre-trip checklist"
-        title="Don't forget."
-        blurb="Everything you need to sort before you go."
+        kicker="One-time tasks"
+        title="Pre-trip checklist."
+        blurb="Book it, apply for it, download it. The stuff you do once before you go."
         right={
-          <div className="flex items-center gap-3 min-w-[200px]">
-            <div className="flex-1 h-1 bg-ink/10 rounded-full overflow-hidden">
-              <motion.div
-                className="h-full rounded-full"
-                style={{ background: 'var(--accent)' }}
-                initial={{ width: 0 }}
-                animate={{ width: `${pct}%` }}
-                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-              />
-            </div>
-            <span className="mono-num text-xs text-ink-muted whitespace-nowrap">
-              {checked}/{total}
-            </span>
+          <div className="mono-num text-sm text-ink-dim">
+            {done}/{total} done
           </div>
         }
       />
-
-      <div className="soft-panel-alt p-6">
-        <div className="space-y-1">
-          {trip.checklist?.map((item) => (
-            <label
-              key={item.id}
-              className="group flex items-center gap-3 py-2.5 cursor-pointer border-b border-ink/5 last:border-0"
-            >
+      <div className="soft-panel-alt p-6 max-w-3xl">
+        <ul className="space-y-0.5">
+          {(trip.checklist || []).map((item) => (
+            <li key={item.id} className="group flex items-center gap-3 py-2.5 border-b border-ink/5 last:border-0">
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  toggle(item.id)
-                }}
-                className={`w-5 h-5 rounded-full border flex-shrink-0 flex items-center justify-center transition-colors ${
-                  item.checked ? 'border-transparent' : 'border-ink/25 hover:border-ink/50'
+                onClick={() => toggle(item.id)}
+                className={`w-5 h-5 rounded flex-shrink-0 flex items-center justify-center border transition ${
+                  item.checked ? '' : 'border-ink/20 hover:border-ink/40'
                 }`}
-                style={item.checked ? { background: 'var(--accent)' } : {}}
+                style={item.checked ? { background: 'var(--accent)', borderColor: 'var(--accent)' } : {}}
               >
                 {item.checked && (
-                  <svg width="10" height="10" viewBox="0 0 10 10" fill="none" stroke="#0E0B08" strokeWidth="2">
-                    <path d="M2 5l2 2 4-4" strokeLinecap="round" strokeLinejoin="round" />
+                  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#0E0B08" strokeWidth="2">
+                    <path d="M2 6l3 3 5-6" />
                   </svg>
                 )}
               </button>
               <input
                 value={item.text}
-                onChange={(e) => updateText(item.id, e.target.value)}
-                className={`inline-input text-sm ${item.checked ? 'line-through text-ink-dim' : 'text-ink'}`}
+                onChange={(e) => updateItem(item.id, e.target.value)}
+                className={`inline-input flex-1 text-base ${item.checked ? 'text-ink-dim line-through' : 'text-ink'}`}
               />
               <button
-                onClick={(e) => {
-                  e.preventDefault()
-                  remove(item.id)
-                }}
-                className="text-ink-dim hover:text-ink opacity-0 group-hover:opacity-100 transition"
+                onClick={() => remove(item.id)}
+                className="text-ink-dim hover:text-ink opacity-0 group-hover:opacity-100 transition flex-shrink-0"
               >
                 <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
                   <path d="M3 3l6 6M9 3l-6 6" />
                 </svg>
               </button>
-            </label>
+            </li>
           ))}
-        </div>
-
+        </ul>
         <div className="flex items-center gap-2 mt-4 pt-4 border-t border-ink/10">
           <input
             value={newItem}
             onChange={(e) => setNewItem(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && addItem()}
-            placeholder="Add task…"
-            className="flex-1 bg-transparent border-none outline-none text-sm text-ink placeholder:text-ink-dim"
+            onKeyDown={(e) => e.key === 'Enter' && add()}
+            placeholder="Add a task…"
+            className="flex-1 bg-transparent text-base text-ink outline-none placeholder:text-ink-dim"
           />
-          <button onClick={addItem} className="btn-pill">
-            Add
+          <button onClick={add} className="btn-pill">
+            <span>+</span><span>Add</span>
           </button>
         </div>
       </div>
@@ -235,90 +213,151 @@ export function Checklist({ trip }) {
   )
 }
 
+// ─── Contacts ───────────────────────────────────────────────────────────────
+// Addresses open Google Maps, phone numbers open the dialer.
 export function Contacts({ trip }) {
   const [filter, setFilter] = useState('all')
 
-  const placesWithContact = trip.places.filter((p) => p.contact || p.notes)
+  const contactPlaces = useMemo(() => {
+    return (trip.places || []).filter((p) => p.contact || p.address)
+  }, [trip.places])
 
-  const filtered =
-    filter === 'all' ? placesWithContact : placesWithContact.filter((p) => p.category === filter)
-
-  // Only show filters for categories that have entries
-  const activeCategories = [...new Set(placesWithContact.map((p) => p.category))]
+  const filtered = filter === 'all' ? contactPlaces : contactPlaces.filter((p) => p.category === filter)
+  const cats = ['all', ...new Set(contactPlaces.map((p) => p.category))]
 
   return (
     <section className="py-20 px-8 lg:px-16 max-w-[1600px] mx-auto">
       <SectionHeader
-        kicker="Directory"
-        title="Contacts & addresses."
-        blurb="Every place, every number, one page. Filter by kind."
+        kicker="Contacts & addresses"
+        title="Who to call."
+        blurb="Click any address to open in Google Maps. Tap any number to call straight from your phone. Edit inline to fix anything."
       />
 
-      <div className="flex items-center gap-1.5 mb-6 flex-wrap">
-        <FilterPill label="All" active={filter === 'all'} onClick={() => setFilter('all')} />
-        {CATEGORIES.filter((c) => activeCategories.includes(c.id)).map((c) => (
-          <FilterPill
-            key={c.id}
-            label={c.label}
-            catId={c.id}
-            active={filter === c.id}
-            onClick={() => setFilter(c.id)}
-          />
-        ))}
+      <div className="flex items-center gap-2 mb-6 flex-wrap">
+        {cats.map((c) => {
+          const cat = CATEGORY_MAP[c]
+          return (
+            <button
+              key={c}
+              onClick={() => setFilter(c)}
+              className={`cat-${c !== 'all' ? c : ''} text-xs mono-num uppercase tracking-[0.15em] px-3 py-1.5 rounded-full border transition ${
+                filter === c
+                  ? 'text-ink border-ink/30 bg-ink/5'
+                  : 'text-ink-dim border-ink/10 hover:text-ink-muted hover:border-ink/20'
+              }`}
+            >
+              {c === 'all' ? 'All' : cat?.label || c}
+            </button>
+          )
+        })}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {filtered.map((place) => (
-          <div key={place.id} className={`cat-${place.category} soft-panel-alt p-5`}>
-            <div className="flex items-center gap-2 mb-2">
-              <span
-                className="w-1.5 h-1.5 rounded-full flex-shrink-0"
-                style={{ background: 'var(--cat)' }}
-              />
-              <span
-                className="mono-num text-[10px] uppercase tracking-[0.2em]"
-                style={{ color: 'var(--cat)' }}
-              >
-                {CATEGORY_MAP[place.category]?.label}
-              </span>
-            </div>
-            <div className="font-display text-xl text-ink display-tight mb-2">{place.name}</div>
-            {place.contact && (
-              <div className="mono-num text-xs text-ink-muted mb-2">{place.contact}</div>
-            )}
-            {place.notes && (
-              <p className="text-xs text-ink-dim leading-relaxed line-clamp-3">{place.notes}</p>
-            )}
-          </div>
-        ))}
-
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.length === 0 && (
-          <div className="md:col-span-2 lg:col-span-3 text-center py-12 text-ink-dim italic">
-            No entries. Add notes or contact info to places to see them here.
+          <div className="col-span-full soft-panel-alt p-10 text-center">
+            <div className="text-ink-muted text-sm italic">
+              No contacts yet. Edit a place card to add its address and phone, and it'll show up here.
+            </div>
           </div>
         )}
+        {filtered.map((place) => (
+          <ContactCard key={place.id} place={place} tripId={trip.id} />
+        ))}
       </div>
     </section>
   )
 }
 
-function FilterPill({ label, active, onClick, catId }) {
+function ContactCard({ place, tripId }) {
+  const [editing, setEditing] = useState(false)
+  const cat = CATEGORY_MAP[place.category]
+
+  const setField = (field, value) => updatePlace(tripId, place.id, { [field]: value })
+
   return (
-    <button
-      onClick={onClick}
-      className={`cat-${catId || ''} text-[11px] mono-num uppercase tracking-[0.15em] px-3 py-1.5 rounded-full border transition ${
-        active
-          ? 'text-ink border-ink/30 bg-ink/5'
-          : 'text-ink-muted border-ink/10 hover:border-ink/20 hover:text-ink'
-      }`}
-    >
-      {catId && (
-        <span
-          className="inline-block w-1.5 h-1.5 rounded-full mr-1.5 align-middle"
-          style={{ background: 'var(--cat)' }}
-        />
-      )}
-      {label}
-    </button>
+    <div className={`soft-panel-alt p-5 group cat-${place.category}`}>
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex-1 min-w-0">
+          <div
+            className="text-[10px] mono-num uppercase tracking-[0.2em] mb-1 flex items-center gap-1.5"
+            style={{ color: 'var(--cat)' }}
+          >
+            <span className="w-1.5 h-1.5 rounded-full" style={{ background: 'var(--cat)' }} />
+            {cat?.label}
+          </div>
+          {editing ? (
+            <input
+              value={place.name}
+              onChange={(e) => setField('name', e.target.value)}
+              className="inline-input font-display text-xl text-ink w-full"
+            />
+          ) : (
+            <h3 className="font-display text-xl text-ink display-tight leading-tight">
+              {place.name}
+            </h3>
+          )}
+        </div>
+        <button
+          onClick={() => setEditing((v) => !v)}
+          className="text-[10px] mono-num uppercase tracking-[0.15em] px-2 py-1 rounded-full border border-ink/10 text-ink-dim hover:text-ink hover:border-ink/30 transition flex-shrink-0 ml-2"
+        >
+          {editing ? 'Done' : 'Edit'}
+        </button>
+      </div>
+
+      {/* Address */}
+      {editing ? (
+        <div className="mb-3">
+          <div className="mono-num text-[10px] uppercase tracking-[0.2em] text-ink-dim mb-1">Address</div>
+          <textarea
+            value={place.address || ''}
+            onChange={(e) => setField('address', e.target.value)}
+            placeholder="Street, city, country"
+            rows={2}
+            className="w-full bg-base-900 border border-ink/10 rounded px-2 py-1.5 text-sm text-ink-muted focus:outline-none focus:border-ink/30 resize-none"
+          />
+        </div>
+      ) : place.address ? (
+        <a
+          href={mapsLink(place)}
+          target="_blank"
+          rel="noreferrer"
+          className="flex items-start gap-2 mb-3 text-ink-muted hover:text-ink transition group/a"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" className="mt-0.5 flex-shrink-0">
+            <path d="M7 13s-5-4.5-5-8a5 5 0 0110 0c0 3.5-5 8-5 8z" />
+            <circle cx="7" cy="5" r="1.5" />
+          </svg>
+          <span className="text-sm leading-snug underline decoration-dotted decoration-ink-dim group-hover/a:decoration-ink">
+            {place.address}
+          </span>
+        </a>
+      ) : null}
+
+      {/* Phone */}
+      {editing ? (
+        <div className="mb-3">
+          <div className="mono-num text-[10px] uppercase tracking-[0.2em] text-ink-dim mb-1">Phone</div>
+          <input
+            value={place.contact || ''}
+            onChange={(e) => setField('contact', e.target.value)}
+            placeholder="+94 77 ..."
+            className="w-full bg-base-900 border border-ink/10 rounded px-2 py-1.5 mono-num text-sm text-ink focus:outline-none focus:border-ink/30"
+          />
+        </div>
+      ) : place.contact ? (
+        <a
+          href={telLink(place.contact)}
+          className="flex items-center gap-2 text-ink-muted hover:text-ink transition group/p"
+        >
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" className="flex-shrink-0">
+            <path d="M2 3.5a1 1 0 011-1h1.5l1 2.5-1 1a6 6 0 003.5 3.5l1-1 2.5 1v1.5a1 1 0 01-1 1A9 9 0 012 3.5z" />
+          </svg>
+          <span className="mono-num text-sm underline decoration-dotted decoration-ink-dim group-hover/p:decoration-ink">
+            {place.contact}
+          </span>
+        </a>
+      ) : null}
+    </div>
   )
 }
